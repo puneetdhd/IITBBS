@@ -32,10 +32,10 @@ mongoose.connect(process.env.MONGO_URI, {
 }).then(() => console.log('MongoDB connected'))
   .catch(err => console.error(err));
 
-app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/faculty', facultyRoutes);
-app.use('/api/student', studentRoutes);
+app.use('/auth', authRoutes);
+app.use('/admin', adminRoutes);
+app.use('/faculty', facultyRoutes);
+app.use('/student', studentRoutes);
 
 
 
