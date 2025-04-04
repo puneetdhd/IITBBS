@@ -8,12 +8,54 @@ const Course = require('../models/Course');
 
 router.use(auth, roleCheck('admin'));
 
-router.post('/create-user', async (req, res) => {
-  const { name, email, password, role } = req.body;
-  const user = new User({ name, email, password, role });
-  await user.save();
-  res.json(user);
-});
+
+router.post('/admin/create-user', async (req, res) => {
+    try {
+      const { name, email, role } = req.body;
+  
+      const existingUser = await User.findOne({ email });
+      if (existingUser) return res.status(400).json({ error: 'User already exists' });
+  
+      const plainPassword = crypto.randomBytes(6).toString('hex'); // e.g., 'd9a0e3b8c2d1'
+      const hashedPassword = await bcrypt.hash(plainPassword, 10);
+  
+      const newUser = new User({
+        name,
+        email,
+        role,
+        password: hashedPassword
+      });
+  
+      await newUser.save();
+  
+      const emailText = `
+  Hi ${name},
+  
+  Your account has been created on the College E-Learning Platform.
+  
+  Login Email: ${email}
+  Temporary Password: ${plainPassword}
+  
+  Please login and change your password after first login.
+  
+  Regards,
+  Admin Team`;
+  
+      await sendEmail(email, 'Your Account Credentials - E-Learning Platform', emailText);
+  
+      res.status(201).json({
+        message: 'User created and credentials sent to email.',
+        user: {
+          name: newUser.name,
+          email: newUser.email,
+          role: newUser.role
+        }
+      });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Something went wrong' });
+    }
+  });
 
 router.post('/create-course', async (req, res) => {
   const { title, description, faculty } = req.body;
