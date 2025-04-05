@@ -17,25 +17,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use(
-    session({
-      secret: process.env.SESSION_SECRET,
-      resave: false,
-      saveUninitialized: false,
-    })
-  );
+app.use(session({
+    secret: process.env.SESSION_SECRET || "your-fallback-secret", // Required
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false } // Set to true in production with HTTPS
+  }));
 
+  console.log("working")
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => console.log('MongoDB connected'))
-  .catch(err => console.error(err));
+  mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB connected here2"))
+  .catch(err => console.log(err));
+  console.log("MongoDB connected here");
 
-app.use('/auth', authRoutes);
-app.use('/admin', adminRoutes);
-app.use('/faculty', facultyRoutes);
-app.use('/student', studentRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/faculty', facultyRoutes);
+app.use('/api/student', studentRoutes);
 
 
 

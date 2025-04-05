@@ -45,12 +45,30 @@ router.get(
   }
 );
 
-// ✅ Logout
-router.get("/logout", (req, res) => {
-  req.logout((err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ msg: "Logged out successfully" });
-  });
+// Logout route (JWT-based authentication)
+router.post("/logout", (req, res) => {
+  try {
+    // Since JWT is stateless, tell the client to remove the token
+    res.json({ msg: "Logged out successfully. Please remove the token from local storage." });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
+
+const authMiddleware = require("../middleware/auth"); // Your JWT middleware
+
+// ✅ Get Current Authenticated User
+router.get("/me", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) return res.status(404).json({ msg: "User not found" });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
 
 module.exports = router;

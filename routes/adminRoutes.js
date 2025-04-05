@@ -9,7 +9,7 @@ const Course = require('../models/Course');
 router.use(auth, roleCheck('admin'));
 
 
-router.post('/admin/create-user', async (req, res) => {
+router.post('/create-user', async (req, res) => {
     try {
       const { name, email, role } = req.body;
   
@@ -57,13 +57,24 @@ router.post('/admin/create-user', async (req, res) => {
     }
   });
 
-router.post('/create-course', async (req, res) => {
-  const { title, description, faculty } = req.body;
-  const course = new Course({ title, description, faculty });
-  await course.save();
-  res.json(course);
-});
-
+  router.post('/create-course', async (req, res) => {
+    try {
+      const { title, description, faculty } = req.body;
+  
+      if (!title || !description || !faculty) {
+        return res.status(400).json({ error: "All fields (title, description, faculty) are required." });
+      }
+  
+      const course = new Course({ title, description, faculty });
+      await course.save();
+  
+      res.status(201).json({ message: "Course created successfully", course });
+    } catch (err) {
+      console.error("Error creating course:", err);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
+  
 
 router.post('/submit-quiz/:quizId', async (req, res) => {
     try {

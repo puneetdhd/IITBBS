@@ -3,6 +3,13 @@ const LocalStrategy = require("passport-local").Strategy;
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const dotenv = require('dotenv');
+
+dotenv.config();
+
+
+console.log("Google Client ID:", process.env.GOOGLE_CLIENT_ID); // Add this before passport.use
+
 
 passport.use(
   new LocalStrategy({ usernameField: "email" }, async (email, password, done) => {
